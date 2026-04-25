@@ -1,0 +1,16 @@
+name: httpfile_runner_dart
+description: >
+  Dart wrapper around the ijhttp CLI — runs IntelliJ HTTP Client (.http) files
+  and returns typed response objects. Requires ijhttp binary and Java 17+.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  path: ^1.9.0
+
+dev_dependencies:
+  test: ^1.24.0
+  lints: ^3.0.0

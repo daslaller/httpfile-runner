@@ -1,0 +1,17 @@
+name: httpfile_parser
+description: >
+  Future native Dart parser for IntelliJ HTTP Client (.http) files.
+  No JVM or ijhttp CLI dependency — parses and executes .http files
+  entirely in Dart.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  http: ^1.2.0
+
+dev_dependencies:
+  test: ^1.24.0
+  lints: ^3.0.0

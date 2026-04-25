@@ -1,15 +1,17 @@
 {
   "name": "httpfile-runner",
   "version": "0.1.0",
-  "description": "Node.js runner for IntelliJ HTTP Client (.http) files — wraps the ijhttp CLI with a clean JS API",
-  "main": "index.js",
+  "description": "Run IntelliJ HTTP Client (.http) files from code — JS, TypeScript, Dart wrappers + deployable httpyac backend",
+  "private": true,
+  "workspaces": [
+    "wrappers/js",
+    "wrappers/ts",
+    "deployable/httpyac"
+  ],
   "scripts": {
-    "example": "node example.js"
+    "example:js":          "node wrappers/js/example.js",
+    "example:deployable":  "node deployable/httpyac/example.js"
   },
-  "keywords": ["intellij", "http-client", "ijhttp", "http-file", "testing", "rest"],
   "author": "daslaller",
-  "license": "MIT",
-  "engines": {
-    "node": ">=18"
-  }
+  "license": "MIT"
 }

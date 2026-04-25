@@ -1,0 +1,16 @@
+{
+  "name": "@httpfile-runner/deployable",
+  "version": "0.1.0",
+  "description": "Deployable httpyac backend — runs .http files in pure Node.js, no Java required",
+  "main": "index.js",
+  "scripts": {
+    "example": "node example.js"
+  },
+  "dependencies": {
+    "httpyac": "^6.0.0"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}

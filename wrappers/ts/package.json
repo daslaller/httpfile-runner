@@ -1,0 +1,19 @@
+{
+  "name": "@httpfile-runner/ts",
+  "version": "0.1.0",
+  "description": "TypeScript wrapper around the ijhttp CLI — runs .http files and returns typed response objects",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "example": "ts-node src/example.ts"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "ts-node": "^10.9.0"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
