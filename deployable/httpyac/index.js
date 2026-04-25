@@ -25,15 +25,29 @@
  *
  * @typedef {object} RunOptions
  * @property {string[]}              files
- * @property {string}                [env]
- * @property {string}                [envFile]
- * @property {string}                [privateEnvFile]
- * @property {Record<string,string>} [variables]
+ * @property {string}                [env]             environment name
+ * @property {Record<string,string>} [variables]       variable overrides
  */
 
 const httpyac = require('httpyac');
 const path    = require('path');
 const fs      = require('fs');
+
+// Wire the fileProvider stub to Node.js fs — required before any parse/send calls
+Object.assign(httpyac.io.fileProvider, {
+  EOL:          require('os').EOL,
+  exists:       p  => Promise.resolve(fs.existsSync(p.toString())),
+  dirname:      p  => path.dirname(p.toString()),
+  hasExtension: (p, ...exts) => exts.includes(path.extname(p.toString())),
+  isAbsolute:   p  => path.isAbsolute(p.toString()),
+  joinPath:     (p, ...s) => path.join(p.toString(), ...s),
+  readFile:     (p, enc) => fs.promises.readFile(p.toString(), enc ?? 'utf8'),
+  readBuffer:   p  => fs.promises.readFile(p.toString()),
+  writeBuffer:  (p, buf) => fs.promises.writeFile(p.toString(), buf),
+  readdir:      p  => fs.promises.readdir(p.toString()),
+  fsPath:       p  => p.toString(),
+  toString:     p  => p.toString(),
+});
 
 /**
  * Run one or more .http files via httpyac (no Java required).
@@ -43,27 +57,23 @@ const fs      = require('fs');
  */
 async function run(options = {}) {
   const {
-    files          = [],
+    files     = [],
     env,
-    envFile,
-    privateEnvFile,
-    variables      = {},
+    variables = {},
   } = options;
 
   if (!files.length) throw new Error('run() requires at least one .http file path');
 
+  const store    = new httpyac.store.HttpFileStore();
   const requests = [];
 
   for (const file of files) {
-    const httpFile = await httpyac.io.fileProvider.parse(
-      path.resolve(file),
-      { envFile, privateEnvFile },
-    );
+    const absPath = path.resolve(file);
+    const text    = fs.readFileSync(absPath, 'utf8');
 
-    const context = {
-      variables: { ...variables },
-      activeEnvironments: env ? [env] : [],
-    };
+    const httpFile = await store.parse(absPath, text, {
+      workingDir: path.dirname(absPath),
+    });
 
     for (const httpRegion of httpFile.httpRegions) {
       if (!httpRegion.request) continue;
@@ -72,24 +82,29 @@ async function run(options = {}) {
       const start = Date.now();
 
       try {
-        const response = await httpyac.send({
+        const success = await httpyac.send({
           httpFile,
           httpRegion,
-          context,
+          variables:          { ...variables },
+          activeEnvironments: env ? [env] : [],
         });
 
-        const statusCode = response?.response?.statusCode;
-        const duration   = Date.now() - start;
-        const testsFailed = response?.testResults?.some(t => !t.result);
+        const response    = httpRegion.response;
+        const duration    = Date.now() - start;
+        const testsFailed = httpRegion.testResults?.some(
+          t => t.status === httpyac.TestResultStatus.FAILED,
+        );
 
         requests.push({
           name,
           file:       path.basename(file),
-          status:     testsFailed ? 'failed' : (statusCode >= 400 ? 'failed' : 'passed'),
-          statusCode,
+          status:     !success || testsFailed        ? 'failed'
+                    : (response?.statusCode ?? 0) >= 400 ? 'failed'
+                    : 'passed',
+          statusCode: response?.statusCode,
           duration,
-          message:    testsFailed
-            ? response.testResults.find(t => !t.result)?.message
+          message: testsFailed
+            ? httpRegion.testResults.find(t => t.status === httpyac.TestResultStatus.FAILED)?.message
             : undefined,
         });
       } catch (err) {
@@ -116,7 +131,6 @@ async function run(options = {}) {
 function printSummary(result) {
   const { requests, passed, failed, total } = result;
   console.log(`\nhttpyac run — ${total} request(s), ${passed} passed, ${failed} failed\n`);
-
   for (const r of requests) {
     const icon = r.status === 'passed' ? '✓' : r.status === 'skipped' ? '—' : '✗';
     const dur  = r.duration ? ` (${r.duration}ms)` : '';

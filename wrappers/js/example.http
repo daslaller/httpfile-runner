@@ -1,0 +1,12 @@
+### Basic GET Request
+GET https://httpbin.org/get?show_env=1
+Accept: application/json
+
+### Basic POST Request
+POST https://httpbin.org/post
+Content-Type: application/json
+
+{
+  "message": "Hello from httpfile-runner",
+  "status": "success"
+}
