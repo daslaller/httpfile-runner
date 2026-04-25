@@ -1,0 +1,17 @@
+node_modules/
+
+# IntelliJ HTTP Client env files — may contain API keys and secrets
+http-client.private.env.json
+*.private.env.json
+
+# Local env overrides
+.env
+.env.*
+!.env.example
+
+# ijhttp report output
+ijhttp-*/
+
+# OS
+.DS_Store
+Thumbs.db

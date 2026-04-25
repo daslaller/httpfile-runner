@@ -1,0 +1,15 @@
+{
+  "name": "httpfile-runner",
+  "version": "0.1.0",
+  "description": "Node.js runner for IntelliJ HTTP Client (.http) files — wraps the ijhttp CLI with a clean JS API",
+  "main": "index.js",
+  "scripts": {
+    "example": "node example.js"
+  },
+  "keywords": ["intellij", "http-client", "ijhttp", "http-file", "testing", "rest"],
+  "author": "daslaller",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  }
+}
